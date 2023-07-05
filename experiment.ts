@@ -1,6 +1,4 @@
-
-
-const runAll =async(): Promise<void> => {
+const runAll = async (): Promise<void> => {
     console.log("TODO")
 }
 
