@@ -1,10 +1,11 @@
 import { readFile } from "fs/promises"
-import { IndexedTx, SigningStargateClient, StargateClient } from "@cosmjs/stargate"
+import { GasPrice, IndexedTx, SigningStargateClient, StargateClient } from "@cosmjs/stargate"
 import { DirectSecp256k1HdWallet, OfflineDirectSigner } from "@cosmjs/proto-signing"
 import { MsgSend } from "cosmjs-types/cosmos/bank/v1beta1/tx"
 import { Tx } from "cosmjs-types/cosmos/tx/v1beta1/tx"
 
 const rpc = "https://rpc.sentry-01.theta-testnet.polypore.xyz"
+const validator: string = "cosmosvaloper178h4s6at5v9cd8m9n7ew3hg7k9eh0s6wptxpcn" //01node
 
 const getAliceSignerFromMnemonic = async (): Promise<OfflineDirectSigner> => {
     const mnemonic = "force rate police inherit soul father coral orphan guitar tongue limb fan report fine seek what luxury tone zebra panic two shock debate enemy"
@@ -48,7 +49,14 @@ const runAll = async (): Promise<void> => {
     const aliceSigner: OfflineDirectSigner = await getAliceSignerFromMnemonic()
     const alice = (await aliceSigner.getAccounts())[0].address
     console.log("Alice's address from signer", alice)
-    const signingClient = await SigningStargateClient.connectWithSigner(rpc, aliceSigner)
+    const signingClient = await SigningStargateClient.connectWithSigner(
+        rpc,
+        aliceSigner,
+        {
+              prefix: "cosmos",
+              gasPrice: GasPrice.fromString("0.0025uatom")
+        }
+            )
     console.log(
         "With signing client, chain id:",
         await signingClient.getChainId(),
@@ -68,9 +76,7 @@ const runAll = async (): Promise<void> => {
     // })
 
     const result = await signingClient.signAndBroadcast(
-        // the signerAddress
         alice,
-        // the message(s)
         [
             {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
@@ -81,13 +87,17 @@ const runAll = async (): Promise<void> => {
                         { denom: "uatom", amount: "100000" },
                     ],
                 },
+            },
+            {
+                typeUrl: "/cosmos.staking.v1beta1.MsgDelegate",
+                value: {
+                    delegatorAddress: alice,
+                    validatorAddress: validator,
+                    amount: { denom: "uatom", amount: "1000", },
+                },
               },
         ],
-        // the fee
-        {
-            amount: [{ denom: "uatom", amount: "500" }],
-            gas: "200000",
-        },
+        "auto"
     )
     
     // Output the result of the Tx
