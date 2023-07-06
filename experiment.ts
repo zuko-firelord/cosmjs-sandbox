@@ -62,10 +62,34 @@ const runAll = async (): Promise<void> => {
     console.log("Alice balance before:", await client.getAllBalances(alice))
     console.log("Faucet balance before:", await client.getAllBalances(faucet))
     // Execute the sendTokens Tx and store the result
-    const result = await signingClient.sendTokens(alice, faucet, [{ denom: "uatom", amount: "100000" }], {
-        amount: [{ denom: "uatom", amount: "500" }],
-        gas: "200000",
-    })
+    // const result = await signingClient.sendTokens(alice, faucet, [{ denom: "uatom", amount: "100000" }], {
+    //     amount: [{ denom: "uatom", amount: "500" }],
+    //     gas: "200000",
+    // })
+
+    const result = await signingClient.signAndBroadcast(
+        // the signerAddress
+        alice,
+        // the message(s)
+        [
+            {
+                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                value: {
+                    fromAddress: alice,
+                    toAddress: faucet,
+                    amount: [
+                        { denom: "uatom", amount: "100000" },
+                    ],
+                },
+              },
+        ],
+        // the fee
+        {
+            amount: [{ denom: "uatom", amount: "500" }],
+            gas: "200000",
+        },
+    )
+    
     // Output the result of the Tx
     console.log("Transfer result:", result)
     console.log("Alice balance after:", await client.getAllBalances(alice))

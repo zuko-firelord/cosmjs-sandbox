@@ -38,6 +38,8 @@ const runAll = async (): Promise<void> => {
         amount: [{ denom: "stake", amount: "500" }],
         gas: "200000",
     })
+
+    
     console.log("Transfer result:", result)
     console.log("Alice balance after:", await client.getAllBalances(alice))
     console.log("Faucet balance after:", await client.getAllBalances(faucet))
