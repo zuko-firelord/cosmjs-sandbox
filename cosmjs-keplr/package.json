@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cosmjs/stargate": "0.28.2",
     "@types/node": "20.4.0",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
+    "cosmjs-types": "0.4.1",
     "next": "13.4.9",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "@keplr-wallet/types": "0.11.51"
   }
 }
